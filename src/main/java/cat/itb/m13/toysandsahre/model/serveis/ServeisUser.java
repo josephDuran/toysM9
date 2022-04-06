@@ -4,14 +4,22 @@ import cat.itb.m13.toysandsahre.model.entitats.Users;
 import cat.itb.m13.toysandsahre.model.repositoris.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+//@Component
 public class ServeisUser {
     private final UserRepository userRepository;
+
+//    private final UserRepository repositoriUsuari;
+    private final PasswordEncoder xifrat;
+
 
     //Llista tots els usuaris
     public List<Users> getUsers(){
@@ -36,5 +44,22 @@ public class ServeisUser {
             userRepository.deleteById(id);
         }
         return user;
+    }
+
+    public Users consultarPerUsername(String username) {
+        return userRepository.findByUsername(username).orElse(null);
+
+    }
+
+    public Users crearNouUsuari(Users nouUsuari) {
+        //falta controlar que els 2 passwords del client coincideixen
+        //passar un UsuariCreacioDTO
+        nouUsuari.setPassword(xifrat.encode(nouUsuari.getPassword()));
+        userRepository.save(nouUsuari);
+        return nouUsuari;
+    }
+
+    public List<Users> llistarUsuaris(){
+        return userRepository.findAll();
     }
 }
